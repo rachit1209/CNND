@@ -1,0 +1,36 @@
+def bellman_ford(edges, vertices, start):
+    # Initialize distances with infinity
+    distances = {node: float('inf') for node in vertices}
+    distances[start] = 0  # Distance to start is 0
+
+    # Relax edges repeatedly
+    for _ in range(len(vertices) - 1):
+        for u, v, weight in edges:
+            if distances[u] != float('inf') and distances[u] + weight < distances[v]:
+                distances[v] = distances[u] + weight
+
+    # Check for negative-weight cycles
+    for u, v, weight in edges:
+        if distances[u] != float('inf') and distances[u] + weight < distances[v]:
+            print("Negative weight cycle detected!")
+            return None
+
+    return distances
+
+# Example usage
+edges = [
+    ('A', 'B', 2),
+    ('A', 'C', 5),
+    ('B', 'C', 1),
+    ('B', 'D', 4),
+    ('C', 'D', 1)
+]
+
+vertices = ['A', 'B', 'C', 'D']
+start_node = 'A'
+shortest_distances = bellman_ford(edges, vertices, start_node)
+
+if shortest_distances:
+    print(f"\nShortest distances from {start_node} using Bellman-Ford:")
+    for node, distance in shortest_distances.items():
+        print(f"{node}: {distance}")
