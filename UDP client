@@ -1,0 +1,15 @@
+import socket
+# Define the server address and port
+server_ip = "127.0.0.1" # Localhost
+server_port = 12345
+# Create a UDP socket
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+# Bind the socket to the address and port
+server_socket.bind((server_ip, server_port))
+print(f"UDP Server listening on {server_ip}:{server_port}")
+while True:
+# Receive data from client
+data, client_address = server_socket.recvfrom(1024) # Buffer size = 1024 bytes
+print(f"Received from {client_address}: {data.decode()}")
+# Send a response back to client
+server_socket.sendto(b"Message received", client_address)
