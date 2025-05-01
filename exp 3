@@ -1,0 +1,53 @@
+  # Create a simulator object
+set ns [new Simulator]
+
+# Open the NAM trace file
+set nf [open out.nam w]
+$ns namtrace-all $nf
+
+# Define the 'finish' procedure
+proc finish {} {
+    global ns nf
+    $ns flush-trace  ;# Flush the trace data
+    close $nf         ;# Close the trace file
+    exec nam out.nam & ;# Run NAM on the trace file
+    exit 0;            ;# Exit the simulation
+}
+
+# Create nodes
+set n0 [$ns node]
+set n1 [$ns node]  ;# Define n1 node
+
+# Create duplex link between n0 and n1 with bandwidth, delay, and queue type
+$ns duplex-link $n0 $n1 1Kb 10ms DropTail
+
+# Create TCP agent and attach to node n0
+set tcp0 [new Agent/TCP]
+$ns attach-agent $n0 $tcp0
+
+# Create TCP sink agent and attach to node n1
+set sink0 [new Agent/TCPSink]
+$ns attach-agent $n1 $sink0
+
+# Connect TCP agent and TCP sink
+$ns connect $tcp0 $sink0
+
+# Create a CBR traffic source and attach it to tcp0
+set cbr0 [new Application/Traffic/CBR]
+$cbr0 set packetSize_ 500
+$cbr0 set interval_ 0.005
+$cbr0 attach-agent $tcp0
+
+# Create an FTP application and attach it to tcp0
+set ftp0 [new Application/FTP]
+$ftp0 attach-agent $tcp0
+
+# Schedule the start and stop of the FTP application
+$ns at 0.5 "$ftp0 start"
+$ns at 4.5 "$ftp0 stop"
+
+# Schedule the finish procedure
+$ns at 5.0 "finish"
+
+# Run the simulation
+$ns run
